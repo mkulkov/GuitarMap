@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "chords": [
+    {"id":"major","name_key":"chord.major","category":"triad","intervals":[0,4,7],"aliases":["maj"],"names":{"ru":"Мажор","en":"Major"}},
+    {"id":"minor","name_key":"chord.minor","category":"triad","intervals":[0,3,7],"aliases":["min"],"names":{"ru":"Минор","en":"Minor"}},
+    {"id":"diminished","name_key":"chord.diminished","category":"triad","intervals":[0,3,6],"aliases":["dim"],"names":{"ru":"Уменьшённый","en":"Diminished"}},
+    {"id":"augmented","name_key":"chord.augmented","category":"triad","intervals":[0,4,8],"aliases":["aug"],"names":{"ru":"Увеличенный","en":"Augmented"}},
+    {"id":"sus2","name_key":"chord.sus2","category":"suspended","intervals":[0,2,7],"aliases":[],"names":{"ru":"Сус 2","en":"Sus 2"}},
+    {"id":"sus4","name_key":"chord.sus4","category":"suspended","intervals":[0,5,7],"aliases":[],"names":{"ru":"Сус 4","en":"Sus 4"}},
+    {"id":"dominant_7","name_key":"chord.dominant_7","category":"seventh","intervals":[0,4,7,10],"aliases":["7"],"names":{"ru":"Доминантсептаккорд","en":"Dominant 7"}},
+    {"id":"major_7","name_key":"chord.major_7","category":"seventh","intervals":[0,4,7,11],"aliases":["maj7"],"names":{"ru":"Большой мажорный септаккорд","en":"Major 7"}},
+    {"id":"minor_7","name_key":"chord.minor_7","category":"seventh","intervals":[0,3,7,10],"aliases":["min7"],"names":{"ru":"Малый минорный септаккорд","en":"Minor 7"}}
+  ]
+}

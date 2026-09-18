@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "tunings": [
+    {
+      "id": "standard",
+      "name_key": "tuning.standard",
+      "open_string_midi": [
+        40,
+        45,
+        50,
+        55,
+        59,
+        64
+      ],
+      "names": {
+        "ru": "Стандартный",
+        "en": "Standard"
+      }
+    },
+    {
+      "id": "drop_d",
+      "name_key": "tuning.drop_d",
+      "open_string_midi": [
+        38,
+        45,
+        50,
+        55,
+        59,
+        64
+      ],
+      "names": {
+        "ru": "Drop D",
+        "en": "Drop D"
+      }
+    },
+    {
+      "id": "d_standard",
+      "name_key": "tuning.d_standard",
+      "open_string_midi": [
+        38,
+        43,
+        48,
+        53,
+        57,
+        62
+      ],
+      "names": {
+        "ru": "D standard",
+        "en": "D standard"
+      }
+    },
+    {
+      "id": "open_g",
+      "name_key": "tuning.open_g",
+      "open_string_midi": [
+        38,
+        43,
+        50,
+        55,
+        59,
+        62
+      ],
+      "names": {
+        "ru": "Open G",
+        "en": "Open G"
+      }
+    },
+    {
+      "id": "bass_standard_4",
+      "name_key": "tuning.bass_standard_4",
+      "open_string_midi": [
+        28,
+        33,
+        38,
+        43
+      ],
+      "names": {
+        "ru": "Стандартный бас (4 струны)",
+        "en": "Standard bass (4-string)"
+      }
+    },
+    {
+      "id": "ukulele_high_g",
+      "name_key": "tuning.ukulele_high_g",
+      "open_string_midi": [
+        67,
+        60,
+        64,
+        69
+      ],
+      "names": {
+        "ru": "Укулеле, высокий G",
+        "en": "High-G ukulele"
+      }
+    }
+  ]
+}

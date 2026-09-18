@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "strings": {
+    "app.title": {"ru": "Гитарная карта", "en": "Guitar Map"},
+    "app.tagline": {"ru": "Изучайте ноты, интервалы и формы грифа", "en": "Explore notes, intervals, and fretboard shapes"},
+    "selector.tonic": {"ru": "Тоника", "en": "Tonic"},
+    "selector.scale": {"ru": "Гамма", "en": "Scale"},
+    "labels.note": {"ru": "Нота", "en": "Note"},
+    "labels.degree": {"ru": "Ступень", "en": "Degree"},
+    "labels.both": {"ru": "Нота и ступень", "en": "Note and degree"},
+    "fretboard.hint": {"ru": "Нажмите на струну, чтобы услышать ноту", "en": "Tap a string to hear its note"},
+    "fretboard.status": {"ru": "Гриф готов", "en": "Fretboard ready"},
+    "settings.tuning": {"ru": "Строй", "en": "Tuning"},
+    "settings.guitar_type": {"ru": "Тип гитары", "en": "Guitar type"},
+    "guitar.acoustic": {"ru": "Акустическая", "en": "Acoustic"},
+    "guitar.electric": {"ru": "Электро", "en": "Electric"},
+    "settings.frets": {"ru": "Количество ладов", "en": "Frets"},
+    "settings.mirror": {"ru": "Зеркальный гриф", "en": "Mirror fretboard"},
+    "settings.spelling": {"ru": "Написание нот", "en": "Note spelling"},
+    "settings.volume": {"ru": "Громкость", "en": "Volume"},
+    "settings.language": {"ru": "Язык", "en": "Language"}
+    ,"settings.open": {"ru": "Настройки", "en": "Settings"}
+    ,"settings.custom": {"ru": "Пользовательский", "en": "Custom"}
+    ,"settings.apply": {"ru": "Применить строй", "en": "Apply tuning"}
+    ,"spelling.sharp": {"ru": "Диезы", "en": "Sharps"}
+    ,"spelling.flat": {"ru": "Бемоли", "en": "Flats"}
+    ,"spelling.context": {"ru": "По контексту", "en": "Context"}
+    ,"language.ru": {"ru": "Русский", "en": "Russian"}
+    ,"language.en": {"ru": "Английский", "en": "English"}
+    ,"details.prompt": {"ru": "Нажмите ноту: высота, ступень, струна, лад и частота", "en": "Tap a note for pitch, degree, string, fret, and frequency"}
+    ,"post.harmony": {"ru": "Гармония", "en": "Harmony"}
+    ,"post.scale": {"ru": "Гамма", "en": "Scale"}
+    ,"post.chord": {"ru": "Аккорд", "en": "Chord"}
+    ,"post.arpeggio": {"ru": "Арпеджио", "en": "Arpeggio"}
+    ,"post.play": {"ru": "Воспроизвести", "en": "Play"}
+    ,"post.stop": {"ru": "Остановить", "en": "Stop"}
+    ,"practice.title": {"ru": "Тренировка", "en": "Practice"}
+    ,"practice.start": {"ru": "Начать тренировку", "en": "Start practice"}
+    ,"practice.prompt_note": {"ru": "Найдите ноту", "en": "Find the note"}
+    ,"practice.correct": {"ru": "Верно!", "en": "Correct!"}
+    ,"practice.wrong": {"ru": "Попробуйте ещё раз", "en": "Try again"}
+    ,"practice.score": {"ru": "Счёт", "en": "Score"}
+    ,"practice.streak": {"ru": "Серия", "en": "Streak"}
+  }
+}
