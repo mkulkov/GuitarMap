@@ -7,6 +7,8 @@ signal position_pressed(owner_id: int, position: Dictionary)
 signal position_moved(owner_id: int, position: Dictionary)
 signal position_released(owner_id: int)
 signal zoom_changed(value: float)
+signal position_inspected(position: Dictionary)
+signal fret_navigation_requested(delta: int)
 
 var positions: Array[Dictionary] = []
 var string_count := 6
@@ -26,6 +28,17 @@ var practice_target_pitch_class := -1
 var feedback_key := Vector2i(-1, -1)
 var feedback_correct := false
 var zoom := 1.0
+var comparison_roles: Dictionary = {}
+var box_keys: Dictionary = {}
+var chord_voicing_keys: Dictionary = {}
+var focus_intervals: Array = []
+var highlighted_pitch_class := -1
+var route_positions: Array[Dictionary] = []
+var previous_shape: Array[Dictionary] = []
+var transition_progress := 1.0
+var _transition_tween: Tween
+var _hold_started: Dictionary = {}
+var _navigation_starts: Dictionary = {}
 
 var _lookup: Dictionary = {}
 var _shape_lookup: Dictionary = {}
@@ -35,6 +48,32 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(_rebuild_geometry)
 	_rebuild_geometry()
+	set_process(true)
+
+
+func _process(_delta: float) -> void:
+	for owner: int in _hold_started.keys():
+		if Time.get_ticks_msec() - int(_hold_started[owner]) >= 550:
+			_hold_started.erase(owner)
+			if active.has(owner):
+				var inspected: Dictionary = _lookup.get(active[owner], {}).duplicate(true)
+				_release(owner)
+				if not inspected.is_empty(): position_inspected.emit(inspected)
+			break
+
+
+func show_shape_transition(old_positions: Array[Dictionary]) -> void:
+	previous_shape = old_positions.duplicate(true)
+	transition_progress = 0.0
+	if _transition_tween != null: _transition_tween.kill()
+	_transition_tween = create_tween()
+	_transition_tween.tween_method(_set_transition_progress, 0.0, 1.0, 0.65)
+	queue_redraw()
+
+
+func _set_transition_progress(value: float) -> void:
+	transition_progress = value
+	queue_redraw()
 
 
 func configure(model: Array[Dictionary], strings: int, frets: int, mirror: bool = false, string_labels: Array[String] = [], range_value: Vector2i = Vector2i(-1, -1)) -> void:
@@ -140,6 +179,37 @@ func _draw() -> void:
 	_draw_neck()
 	_draw_shape_contour()
 	_draw_markers()
+	_draw_study_overlays()
+
+
+func _draw_study_overlays() -> void:
+	if practice_hidden: return
+	for old: Dictionary in previous_shape:
+		if old.fret < visible_range.x or old.fret > visible_range.y: continue
+		var key := Vector2i(int(old.string_index), int(old.fret))
+		var center := position_center_for(key.x, key.y)
+		if _shape_lookup.has(key):
+			draw_arc(center, _marker_radius() + 5, 0, TAU, 40, Color("e9fbff"), 3, true)
+		elif transition_progress < 1.0:
+			draw_circle(center, _marker_radius(), Color(0.5, 0.7, 0.8, (1.0 - transition_progress) * 0.6))
+	for index in route_positions.size():
+		var point: Dictionary = route_positions[index]
+		if point.fret < visible_range.x or point.fret > visible_range.y: continue
+		var center := position_center_for(int(point.string_index), int(point.fret))
+		if index > 0:
+			var prior: Dictionary = route_positions[index - 1]
+			var start := position_center_for(int(prior.string_index), int(prior.fret))
+			if start.x > -100:
+				var vector := (center - start).normalized()
+				var end := center - vector * (_marker_radius() + 4)
+				draw_line(start + vector * (_marker_radius() + 4), end, Color("d7faff", 0.65), 2, true)
+				draw_line(end, end - vector.rotated(0.5) * 9, Color("d7faff"), 2, true)
+				draw_line(end, end - vector.rotated(-0.5) * 9, Color("d7faff"), 2, true)
+		var label := str(index + 1)
+		if int(point.get("suggested_finger", -1)) >= 0: label += "/" + str(point.suggested_finger)
+		var at := center + Vector2(-20, -_marker_radius() - 10)
+		draw_style_box(_box(Color("061520"), Color("8de8ff"), 4, 1), Rect2(at - Vector2(0, 13), Vector2(40, 18)))
+		_text(at, label, 12, Color("effcff"), 40)
 
 
 func _draw_neck() -> void:
@@ -149,6 +219,7 @@ func _draw_neck() -> void:
 	for band in 14:
 		var y := board.position.y + board.size.y * (float(band) + 0.5) / 14.0
 		draw_line(Vector2(board.position.x, y), Vector2(board.end.x, y + sin(float(band) * 1.7) * 1.6), Color("a8c1ce", 0.035), 1.0)
+	_draw_box_background()
 	for local_fret in range(geometry.fret_count + 1):
 		var span := geometry.fret_span(local_fret)
 		var x := span.x
@@ -176,6 +247,48 @@ func _draw_neck() -> void:
 		draw_arc(label_center, label_radius, 0.0, TAU, 40, Color("173d5c"), 1.2, true)
 		var label_size := mini(17, roundi(label_radius * 1.1))
 		_text(label_center + Vector2(-18.0, label_size * 0.35), open_note, label_size, Color("d7e8ff"), 36.0)
+
+
+func _draw_box_background() -> void:
+	if topic != "scales" or box_keys.is_empty() or practice_hidden or highlighted_pitch_class >= 0:
+		return
+	var rows: Array[Vector3] = []
+	var padding := minf(geometry.cell_size().x * 0.42, _marker_radius() + 12.0)
+	for string_index in string_count:
+		var left := INF
+		var right := -INF
+		var row_y := 0.0
+		for key: Vector2i in box_keys:
+			if key.x != string_index or key.y < visible_range.x or key.y > visible_range.y: continue
+			var center := position_center_for(key.x, key.y)
+			left = minf(left, center.x - padding)
+			right = maxf(right, center.x + padding)
+			row_y = center.y
+		if left != INF:
+			rows.append(Vector3(row_y, maxf(left, geometry.rect.position.x + 2), minf(right, geometry.rect.end.x - 2)))
+	if rows.is_empty(): return
+	rows.sort_custom(func(a: Vector3, b: Vector3): return a.x < b.x)
+	var half_row := geometry.cell_size().y * 0.46
+	var left_edge: Array[Vector2] = [Vector2(rows[0].y, maxf(geometry.rect.position.y + 2, rows[0].x - half_row))]
+	var right_edge: Array[Vector2] = [Vector2(rows[0].z, left_edge[0].y)]
+	for index in range(rows.size() - 1):
+		var middle := (rows[index].x + rows[index + 1].x) * 0.5
+		left_edge.append(Vector2(rows[index].y, middle))
+		left_edge.append(Vector2(rows[index + 1].y, middle))
+		right_edge.append(Vector2(rows[index].z, middle))
+		right_edge.append(Vector2(rows[index + 1].z, middle))
+	var bottom := minf(geometry.rect.end.y - 2, rows[-1].x + half_row)
+	left_edge.append(Vector2(rows[-1].y, bottom))
+	right_edge.append(Vector2(rows[-1].z, bottom))
+	right_edge.reverse()
+	var outline: Array[Vector2] = []
+	for point in left_edge + right_edge:
+		if outline.is_empty() or outline[-1].distance_to(point) > 0.1: outline.append(point)
+	var rounded := _rounded_polygon(outline, minf(12.0, half_row * 0.4))
+	if rounded.size() < 3: return
+	draw_colored_polygon(rounded, Color("35cfe5", 0.065))
+	rounded.append(rounded[0])
+	draw_polyline(rounded, Color("68dce9", 0.23), 1.2, true)
 
 
 func _draw_shape_contour() -> void:
@@ -249,13 +362,24 @@ func _draw_markers() -> void:
 		var in_chord := bool(position.get("in_chord", position.get("is_chord_tone", false)))
 		var in_shape := bool(position.get("in_shape", false))
 		var bright := _is_bright(in_scale, in_chord, in_shape, root)
+		if topic == "chords" and layer == "chord" and not chord_voicing_keys.is_empty():
+			bright = chord_voicing_keys.has(key)
+		if not focus_intervals.is_empty(): bright = bright and focus_intervals.has(int(position.interval))
+		var comparison := str(comparison_roles.get(key, ""))
+		if comparison == "common": bright = false
+		if comparison == "added": bright = true
+		if highlighted_pitch_class >= 0: bright = int(position.pitch_class) == highlighted_pitch_class
+		if not box_keys.is_empty() and highlighted_pitch_class < 0: bright = bright and box_keys.has(key)
 		if practice_hidden:
 			bright = false
 		var shape_overlay := topic == "caged" and layer == "scale" and in_shape and not practice_hidden
-		if not in_scale and not bright and not practice_hidden and not shape_overlay:
+		if not in_scale and not bright and not practice_hidden and not shape_overlay and comparison != "removed":
 			continue
 		var radius := _marker_radius()
-		if shape_overlay and not in_scale:
+		if comparison == "removed" and not practice_hidden:
+			_draw_context_marker(center, radius, position, false)
+			_text(center + Vector2(radius - 3, -radius + 5), "−", 19, Color("ffc77a"), 20)
+		elif shape_overlay and not in_scale:
 			_draw_outside_scale_marker(center, radius, position)
 		elif bright:
 			_draw_learning_marker(center, radius, position, root)
@@ -263,6 +387,8 @@ func _draw_markers() -> void:
 			_draw_context_marker(center, radius * 0.78, position, practice_hidden)
 		if shape_overlay and in_scale:
 			draw_arc(center, radius + 4.0, 0.0, TAU, 48, Color("d5f6ff"), 2.0, true)
+		if comparison == "added" and not practice_hidden:
+			_text(center + Vector2(radius - 3, -radius + 5), "+", 19, Color("b0ffcb"), 20)
 		if active.values().has(key) or playback_keys.has(key):
 			draw_circle(center, radius + 8.0, Color("45dcff", 0.13))
 			draw_arc(center, radius + 8.0, 0.0, TAU, 48, Color("5eeaff"), 2.4, true)
@@ -303,6 +429,9 @@ func _draw_context_marker(center: Vector2, radius: float, position: Dictionary, 
 func _draw_learning_marker(center: Vector2, radius: float, position: Dictionary, root: bool) -> void:
 	var interval := posmod(int(position.get("interval", 0)), 12)
 	var color := AppTheme.NOTE_ROOT if root else (Color("9168f3") if interval in [3, 4] else (Color("2ed3f2") if interval == 7 else AppTheme.note_color_for_interval(interval)))
+	if topic == "caged" and bool(position.get("in_shape", false)) and not previous_shape.is_empty():
+		var stayed := previous_shape.any(func(old: Dictionary): return old.string_index == position.string_index and old.fret == position.fret)
+		if not stayed: color.a = lerpf(0.25, 1.0, transition_progress)
 	draw_circle(center, radius + 7.0, Color(color.r, color.g, color.b, 0.13))
 	if root:
 		var corners: Array[Vector2] = [center + Vector2(0, -radius), center + Vector2(radius, 0), center + Vector2(0, radius), center + Vector2(-radius, 0)]
@@ -321,7 +450,7 @@ func _draw_learning_marker(center: Vector2, radius: float, position: Dictionary,
 func _marker_radius() -> float:
 	if geometry == null:
 		return 18.0
-	return clampf(geometry.cell_size().y * 0.36, 14.0, 32.0)
+	return clampf(minf(geometry.cell_size().y * 0.36, geometry.cell_size().x * 0.34), 8.0, 32.0)
 
 
 func set_playback_midi(midi_note: int) -> void:
@@ -362,28 +491,75 @@ func position_at(point: Vector2) -> Dictionary:
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and not OS.has_feature("mobile") and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
-			_press(-1, event.position)
+			if _is_marker_at(event.position):
+				_press(-1, event.position)
+			else:
+				_begin_navigation(-1, event.position)
 		else:
-			_release(-1)
+			_end_pointer(-1)
 		accept_event()
-	elif event is InputEventMouseMotion and not OS.has_feature("mobile") and active.has(-1):
-		_move(-1, event.position)
+	elif event is InputEventMouseMotion and not OS.has_feature("mobile"):
+		if _navigation_starts.has(-1):
+			_drag_navigation(-1, event.position)
+		elif active.has(-1):
+			_move(-1, event.position)
 	elif event is InputEventScreenTouch:
 		if event.pressed and not event.canceled:
-			_press(event.index, event.position)
+			if _is_marker_at(event.position):
+				_press(event.index, event.position)
+			else:
+				_begin_navigation(event.index, event.position)
 		else:
-			_release(event.index)
+			_end_pointer(event.index)
 		accept_event()
 	elif event is InputEventScreenDrag:
-		_move(event.index, event.position)
+		if _navigation_starts.has(event.index):
+			_drag_navigation(event.index, event.position)
+		else:
+			_move(event.index, event.position)
 		accept_event()
 
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and not OS.has_feature("mobile") and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_release(-1)
+		_end_pointer(-1)
 	elif event is InputEventScreenTouch and (not event.pressed or event.canceled):
-		_release(event.index)
+		_end_pointer(event.index)
+
+
+func _is_marker_at(point: Vector2) -> bool:
+	if geometry == null:
+		return false
+	var hit_radius := _marker_radius() + 8.0
+	for position: Dictionary in positions:
+		var fret := int(position.fret)
+		if fret < visible_range.x or fret > visible_range.y:
+			continue
+		if point.distance_to(position_center_for(int(position.string_index), fret)) <= hit_radius:
+			return true
+	return false
+
+
+func _begin_navigation(owner: int, point: Vector2) -> void:
+	_navigation_starts[owner] = point
+
+
+func _drag_navigation(owner: int, point: Vector2) -> void:
+	if not _navigation_starts.has(owner):
+		return
+	var start: Vector2 = _navigation_starts[owner]
+	var threshold := maxf(36.0, geometry.cell_size().x * 0.55) if geometry != null else 48.0
+	if absf(point.x - start.x) < threshold:
+		return
+	# Dragging left reveals higher frets; dragging right reveals lower frets.
+	var direction := 1 if point.x < start.x else -1
+	_navigation_starts[owner] = start + Vector2(threshold * -direction, 0.0)
+	fret_navigation_requested.emit(direction * 3)
+
+
+func _end_pointer(owner: int) -> void:
+	_navigation_starts.erase(owner)
+	_release(owner)
 
 
 func _press(owner: int, point: Vector2) -> void:
@@ -391,6 +567,7 @@ func _press(owner: int, point: Vector2) -> void:
 	if position.is_empty():
 		return
 	active[owner] = Vector2i(int(position.string_index), int(position.fret))
+	_hold_started[owner] = Time.get_ticks_msec()
 	position_pressed.emit(owner, position)
 	queue_redraw()
 
@@ -402,12 +579,14 @@ func _move(owner: int, point: Vector2) -> void:
 	var key := Vector2i(int(position.get("string_index", -1)), int(position.get("fret", -1)))
 	if active[owner] == key:
 		return
+	_hold_started.erase(owner)
 	active[owner] = key
 	position_moved.emit(owner, position)
 	queue_redraw()
 
 
 func _release(owner: int) -> void:
+	_hold_started.erase(owner)
 	if active.erase(owner):
 		position_released.emit(owner)
 		queue_redraw()

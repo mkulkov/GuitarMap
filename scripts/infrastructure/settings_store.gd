@@ -2,7 +2,7 @@ class_name SettingsStore
 extends RefCounted
 
 const SCHEMA_VERSION := 1
-const DEFAULT_PATH := "user://guitarmap_settings.json"
+const DEFAULT_PATH := "user://fret_formula_settings.json"
 
 var path: String
 
@@ -27,7 +27,7 @@ static func defaults() -> Dictionary:
 		"spelling": "sharp",
 		"guitar_type": "acoustic",
 		"master_volume": 1.0,
-		"tempo_bpm": 60,
+		"tempo_bpm": 120,
 		"language": "ru",
 		"display_mode": 0,
 	}
@@ -104,7 +104,7 @@ static func _validate(raw: Variant) -> Dictionary:
 	if raw.has("tempo_bpm"):
 		_normalize_integer(raw, normalized, errors, "tempo_bpm", 30, 240)
 	else:
-		normalized["tempo_bpm"] = 60
+		normalized["tempo_bpm"] = 120
 	_normalize_enum(raw, normalized, errors, "language", ["ru", "en"])
 	_normalize_integer(raw, normalized, errors, "display_mode", 0, 2)
 	_normalize_custom_tuning(raw, normalized, errors)

@@ -3,7 +3,7 @@ extends SceneTree
 const PracticeSession := preload("res://scripts/application/practice_session.gd")
 const PracticeStatsStore := preload("res://scripts/infrastructure/practice_stats_store.gd")
 
-var stats_path := "user://guitarmap_practice_tests_%d.json" % Time.get_ticks_usec()
+var stats_path := "user://fret_formula_practice_tests_%d.json" % Time.get_ticks_usec()
 
 
 func _init() -> void:

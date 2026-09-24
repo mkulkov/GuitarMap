@@ -2,9 +2,11 @@
 
 ## Visual references
 
-`docs/reference/approved-landscape.png` — AI-generated concept approved by the user on 2026-09-18. It is a design reference, not a runtime background. The earlier `guitarmap-ui-reference.png` is historical. Both are excluded from application exports.
+`docs/reference/approved-landscape.png` — AI-generated concept approved by the user on 2026-09-18. It is a design reference, not a runtime background. The earlier `fret_formula_ui_reference.png` is historical. Both are excluded from application exports.
 
 `assets/brand_mark.svg` is an original vector implementation of the approved cyan pick/guitar-neck brand motif. Runtime fretboard, markers and shape overlays are drawn by the application from musical data.
+
+`assets/formula_fret_logo_compact.png` and `assets/formula_fret_icon.png` are transparent runtime derivatives of the user-supplied approved «Формула грифа» artwork, prepared for responsive header and loading-screen use.
 
 ## Audio
 
@@ -16,4 +18,4 @@ Godot Engine is distributed under its own license. Engine license and third-part
 
 ## Musical reference material
 
-See `docs/LEARNING_SOURCES.md` for links checked when defining the educational scope. Explanatory text in GuitarMap is written for this application.
+See `docs/LEARNING_SOURCES.md` for links checked when defining the educational scope. Explanatory text in «Формула грифа» is written for this application.

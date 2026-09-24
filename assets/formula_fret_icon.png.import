@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3td3y1w35r5h"
-path="res://.godot/imported/guitarmap-ui-reference.png-407dc4316e03ec9b8385ec98e3fdd60a.ctex"
+uid="uid://b1k45bhuqjb73"
+path="res://.godot/imported/formula_fret_icon.png-17f6c74fd1755e626b8d54e0c54838ba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://docs/reference/guitarmap-ui-reference.png"
-dest_files=["res://.godot/imported/guitarmap-ui-reference.png-407dc4316e03ec9b8385ec98e3fdd60a.ctex"]
+source_file="res://assets/formula_fret_icon.png"
+dest_files=["res://.godot/imported/formula_fret_icon.png-17f6c74fd1755e626b8d54e0c54838ba.ctex"]
 
 [params]
 

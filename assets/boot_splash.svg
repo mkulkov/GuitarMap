@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#61eafb"/>
+      <stop offset="1" stop-color="#1599da"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1280" height="720" fill="#04121c"/>
+  <path d="M0 116h1280M0 604h1280" stroke="#123047" stroke-width="2" opacity=".75"/>
+  <g opacity=".28" stroke="#1b506b" stroke-width="3">
+    <path d="M120 184h1040M120 256h1040M120 328h1040M120 400h1040M120 472h1040M120 544h1040"/>
+  </g>
+  <g transform="translate(540 142)">
+    <circle cx="100" cy="100" r="94" fill="#082235" stroke="#256078" stroke-width="3"/>
+    <path d="M100 26C61 26 42 42 45 72c3 28 24 64 44 84 6 6 16 6 22 0 20-20 41-56 44-84 3-30-16-46-55-46Z" fill="url(#cyan)" filter="url(#glow)"/>
+    <g fill="none" stroke="#062137" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M83 58h34v46H83z" stroke-width="9"/>
+      <path d="M91 104v46m18-46v46M78 70h-11m11 18h-11m71-18h11m-11 18h11M85 76h30m-30 18h30" stroke-width="7"/>
+      <path d="M99 61v89" stroke-width="3"/>
+    </g>
+  </g>
+  <text x="640" y="404" text-anchor="middle" fill="#edf7ff" font-family="sans-serif" font-size="58" font-weight="700">Формула грифа</text>
+  <text x="640" y="446" text-anchor="middle" fill="#9bb8cf" font-family="sans-serif" font-size="22" letter-spacing="2">ИНТЕРАКТИВНЫЙ ГРИФ · ТЕОРИЯ И ПРАКТИКА</text>
+  <rect x="552" y="492" width="176" height="5" rx="2.5" fill="#22d8f2"/>
+</svg>

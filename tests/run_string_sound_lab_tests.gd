@@ -10,7 +10,7 @@ func _run() -> void:
 	var scene = load("res://scenes/labs/string_sound_lab.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
-	assert(scene.preset_dictionary().schema == "guitarmap.string_sound_lab.v1")
+	assert(scene.preset_dictionary().schema == "fret_formula.string_sound_lab.v1")
 	assert(scene.preset_dictionary().parameters.size() == 6)
 	scene._set_parameter(0.83, "sustain")
 	assert(is_equal_approx(float(scene.parameters.sustain), 0.83))

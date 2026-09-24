@@ -31,7 +31,7 @@ func _ready() -> void:
 	set_process(true)
 
 
-func note_on(midi_note: int, velocity: float, owner_id: int) -> int:
+func note_on(midi_note: int, velocity: float, owner_id: int, loop_stream: bool = false) -> int:
 	if not _ready_for_notes or midi_note < SUPPORTED_MIDI_MIN or midi_note > SUPPORTED_MIDI_MAX:
 		return -1
 	var allocation := _pool.allocate(midi_note, clampf(velocity, 0.0, 1.0), owner_id, Time.get_ticks_msec())
@@ -44,7 +44,11 @@ func note_on(midi_note: int, velocity: float, owner_id: int) -> int:
 		voice_stopped.emit(stolen_handle, "stolen")
 	var base_midi := _nearest_base_midi(midi_note)
 	var player := _players[slot]
-	player.stream = PluckedStringFactory.stream_for(base_midi, _timbre)
+	var stream := PluckedStringFactory.stream_for(base_midi, _timbre)
+	if loop_stream:
+		stream = stream.duplicate() as AudioStreamWAV
+		stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	player.stream = stream
 	player.pitch_scale = Pitch.new(midi_note).frequency() / Pitch.new(base_midi).frequency()
 	player.volume_db = _volume_db(velocity)
 	player.play()

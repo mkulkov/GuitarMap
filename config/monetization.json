@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "platforms": {
+    "debug": {
+      "enabled": true,
+      "products": [
+        {
+          "product_id": "fret_formula_donation_99",
+          "button_style": "price_only",
+          "product": {"title": "Угостить разработчика кофе.", "price": "99 ₽"}
+        },
+        {
+          "product_id": "fret_formula_donation_199",
+          "button_style": "price_only",
+          "product": {"title": "Поддержать разработку", "price": "199 ₽"}
+        },
+        {
+          "product_id": "fret_formula_donation_499",
+          "button_style": "price_only",
+          "product": {"title": "Большая поддержка", "price": "499 ₽"}
+        }
+      ]
+    },
+    "rustore": {
+      "enabled": true,
+      "products": [
+        {"product_id": "fret_formula_donation_99", "button_style": "price_only"},
+        {"product_id": "fret_formula_donation_199", "button_style": "price_only"},
+        {"product_id": "fret_formula_donation_499", "button_style": "price_only"}
+      ]
+    },
+    "yandex_games": {
+      "enabled": true,
+      "products": [
+        {"product_id": "fret_formula_donation_99", "button_style": "price_only"},
+        {"product_id": "fret_formula_donation_199", "button_style": "price_only"},
+        {"product_id": "fret_formula_donation_499", "button_style": "price_only"}
+      ]
+    },
+    "vk_mini_apps": {
+      "enabled": false,
+      "products": []
+    },
+    "unsupported": {
+      "enabled": false,
+      "products": []
+    }
+  }
+}

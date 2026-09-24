@@ -21,20 +21,21 @@ static func policy_for(viewport_size: Vector2) -> Dictionary:
 	}
 
 
-static func safe_margins(viewport_size: Vector2, window_size: Vector2i, safe_area: Rect2i, base_margin: int) -> Dictionary:
+static func safe_margins(viewport_size: Vector2, window_size: Vector2i, safe_area: Rect2i, base_margin: int, rounded_corner_margin: int = 0) -> Dictionary:
+	var edge_margin := maxi(base_margin, rounded_corner_margin)
 	var margins := {
-		"left": base_margin,
-		"right": base_margin,
-		"top": base_margin,
-		"bottom": base_margin,
+		"left": edge_margin,
+		"right": edge_margin,
+		"top": edge_margin,
+		"bottom": edge_margin,
 	}
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0 or window_size.x <= 0 or window_size.y <= 0:
 		return margins
 	if safe_area.size.x <= 0 or safe_area.size.y <= 0:
 		return margins
 	var scale := Vector2(viewport_size.x / float(window_size.x), viewport_size.y / float(window_size.y))
-	margins.left = maxi(base_margin, roundi(maxf(0.0, safe_area.position.x * scale.x)))
-	margins.right = maxi(base_margin, roundi(maxf(0.0, (window_size.x - safe_area.end.x) * scale.x)))
-	margins.top = maxi(base_margin, roundi(maxf(0.0, safe_area.position.y * scale.y)))
-	margins.bottom = maxi(base_margin, roundi(maxf(0.0, (window_size.y - safe_area.end.y) * scale.y)))
+	margins.left = maxi(edge_margin, roundi(maxf(0.0, safe_area.position.x * scale.x)))
+	margins.right = maxi(edge_margin, roundi(maxf(0.0, (window_size.x - safe_area.end.x) * scale.x)))
+	margins.top = maxi(edge_margin, roundi(maxf(0.0, safe_area.position.y * scale.y)))
+	margins.bottom = maxi(edge_margin, roundi(maxf(0.0, (window_size.y - safe_area.end.y) * scale.y)))
 	return margins

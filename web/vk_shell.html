@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Формула грифа</title>
+  $GODOT_HEAD_INCLUDE
+  <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
+  <script>
+    window.FretFormulaPlatform = (() => {
+      const finish = (callback, value) => callback(JSON.stringify(value));
+      return {
+        initialize(callback) {
+          if (!window.vkBridge) { finish(callback, {success:false,platform:'vk_mini_apps',status:'bridge_unavailable'}); return; }
+          window.vkBridge.send('VKWebAppInit')
+            .then(() => finish(callback, {success:true,platform:'vk_mini_apps',status:'ready'}))
+            .catch(error => finish(callback, {success:false,platform:'vk_mini_apps',status:String(error)}));
+        },
+        loadDonationCatalog(_productIdsJson, callback) { finish(callback, {success:false,status:'sdk_catalog_unavailable'}); },
+        purchaseDonation(productId, callback) { finish(callback, {success:false,status:'not_configured',product_id:productId}); },
+        restoreDonations(_productIdsJson, callback) { finish(callback, {purchases:[]}); },
+        acknowledgeDonation(_transactionId, callback) { finish(callback, {success:false,status:'not_configured'}); }
+      };
+    })();
+  </script>
+  <style>html,body,#canvas{margin:0;width:100%;height:100%;overflow:hidden;background:#04121c}</style>
+</head>
+<body>
+  <canvas id="canvas">Your browser does not support canvas.</canvas>
+  <script src="$GODOT_URL"></script>
+  <script>const GODOT_CONFIG=$GODOT_CONFIG;const engine=new Engine(GODOT_CONFIG);engine.startGame({args:$GODOT_ARGS});</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# GuitarMap project instructions
+# FretFormula project instructions
 
 These rules extend `C:\dev\Godot\games\AGENTS.md` and do not replace its
 global Godot paths, skills, MCP package, or verification requirements.
@@ -6,7 +6,7 @@ global Godot paths, skills, MCP package, or verification requirements.
 ## Product constraints
 
 - Treat `docs/DEVELOPMENT_PLAN.md` as the implementation roadmap and
-  `docs/reference/guitarmap-ui-reference.png` as UX direction, not a pixel-perfect specification.
+  `docs/reference/fret_formula_ui_reference.png` as UX direction, not a pixel-perfect specification.
 - Keep music theory, tuning, fretboard geometry, interaction, audio, and UI as
   separate modules. UI nodes must not become the source of truth for pitches.
 - A fret position is identified by `string_index + fret`; its pitch is the
@@ -34,16 +34,16 @@ global Godot paths, skills, MCP package, or verification requirements.
 
 ## Models and delegation
 
-- Follow the global default: `gpt-5.6-terra` with medium reasoning for routine
+- Follow the global default: `gpt-6-sol` with medium reasoning for routine
   implementation, tests, review, and bounded debugging.
-- Use Luna/low only for mechanical edits. Recommend Sol/high for architecture,
+- Use Luna/low for mechanical or short, well-defined edits, and Sol/low for
+  read-heavy or bounded work. Recommend Sol/high for architecture,
   audio concurrency, difficult cross-module defects, or security-sensitive work.
-- Use `gpt-5.3-codex-spark`/low (`FAST_INTERACTIVE_EXECUTOR`) only for a
-  delegated short, local, well-defined coding or UI adjustment in an existing
-  implementation when rapid feedback materially helps. Do not use it for
+- Use `gpt-6-luna`/low for a delegated short, local, well-defined coding or UI
+  adjustment in an existing implementation. Do not use it for
   architecture, cross-module or unclear work, risky changes, or deep reasoning.
-- Use Astra/xhigh only for a difficult indivisible end-to-end problem where it
-  materially reduces rework. Delegate only bounded independent workstreams;
+- Use Astra/xhigh only when the user directly instructs it for the task or
+  explicitly approves a task-specific recommendation. Delegate only bounded independent workstreams;
   the primary agent owns integration and verification.
 
 ## Tools and verification

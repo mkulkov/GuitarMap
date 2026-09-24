@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Формула грифа</title>
+  $GODOT_HEAD_INCLUDE
+  <script src="/sdk.js"></script>
+  <script>
+    window.FretFormulaPlatform = (() => {
+      let sdk = null;
+      let payments = null;
+      let initialization = null;
+      const finish = (callback, value) => callback(JSON.stringify(value));
+      const ensureInitialized = () => {
+        if (initialization) return initialization;
+        initialization = window.YaGames
+          ? window.YaGames.init().then(async value => {
+              sdk = value;
+              payments = sdk.getPayments ? await sdk.getPayments() : sdk.payments;
+              return sdk;
+            })
+          : Promise.reject(new Error('YaGames SDK is unavailable'));
+        return initialization;
+      };
+      return {
+        initialize(callback) {
+          ensureInitialized()
+            .then(() => finish(callback, {success: !!payments, platform: 'yandex_games', status: payments ? 'ready' : 'payments_unavailable'}))
+            .catch(error => finish(callback, {success: false, platform: 'yandex_games', status: String(error)}));
+        },
+        loadDonationCatalog(productIdsJson, callback) {
+          ensureInitialized().then(() => payments.getCatalog()).then(items => {
+            const productIds = JSON.parse(productIdsJson);
+            const products = productIds.map(productId => items.find(item => item.id === productId)).filter(Boolean);
+            if (products.length !== productIds.length) throw new Error('One or more donation products are unavailable');
+            finish(callback, {
+              success: true,
+              products: products.map(product => ({
+                product_id: product.id,
+                title: product.title || '',
+                price: product.price || '',
+                currency: product.priceCurrencyCode || ''
+              }))
+            });
+          }).catch(error => finish(callback, {success: false, status: String(error)}));
+        },
+        purchaseDonation(productId, callback) {
+          ensureInitialized().then(() => payments.purchase({id: productId})).then(purchase => {
+            finish(callback, {
+              success: true,
+              status: 'confirmed',
+              product_id: purchase.productID || productId,
+              transaction_id: purchase.purchaseToken || ''
+            });
+          }).catch(error => finish(callback, {success: false, status: String(error), product_id: productId}));
+        },
+        restoreDonations(productIdsJson, callback) {
+          ensureInitialized().then(() => payments.getPurchases()).then(items => {
+            const productIds = new Set(JSON.parse(productIdsJson));
+            finish(callback, {purchases: items.filter(item => productIds.has(item.productID)).map(item => ({
+              product_id: item.productID,
+              transaction_id: item.purchaseToken || ''
+            }))});
+          }).catch(() => finish(callback, {purchases: []}));
+        },
+        acknowledgeDonation(transactionId, callback) {
+          ensureInitialized().then(() => payments.consumePurchase(transactionId))
+            .then(() => finish(callback, {success: true}))
+            .catch(error => finish(callback, {success: false, status: String(error)}));
+        }
+      };
+    })();
+  </script>
+  <style>html,body,#canvas{margin:0;width:100%;height:100%;overflow:hidden;background:#04121c}</style>
+</head>
+<body>
+  <canvas id="canvas">Your browser does not support canvas.</canvas>
+  <script src="$GODOT_URL"></script>
+  <script>const GODOT_CONFIG=$GODOT_CONFIG;const engine=new Engine(GODOT_CONFIG);engine.startGame({args:$GODOT_ARGS});</script>
+</body>
+</html>

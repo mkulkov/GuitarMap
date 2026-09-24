@@ -18,6 +18,8 @@ func _init() -> void:
 	assert(inset == {"left": 80, "right": 12, "top": 12, "bottom": 24})
 	var scaled := ResponsiveLayout.safe_margins(Vector2(640, 360), Vector2i(1280, 720), Rect2i(80, 0, 1120, 720), 6)
 	assert(scaled == {"left": 40, "right": 40, "top": 6, "bottom": 6})
+	var rounded := ResponsiveLayout.safe_margins(Vector2(1600, 720), Vector2i(2400, 1080), Rect2i(0, 0, 2400, 1080), 14, 48)
+	assert(rounded == {"left": 48, "right": 48, "top": 48, "bottom": 48})
 	var unavailable := ResponsiveLayout.safe_margins(Vector2(640, 360), Vector2i(640, 360), Rect2i(), 6)
 	assert(unavailable == {"left": 6, "right": 6, "top": 6, "bottom": 6})
 	print("Responsive tests passed: sizes, density-independent touch cells and safe-area margins.")

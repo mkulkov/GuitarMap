@@ -90,6 +90,12 @@ static func _validate_record(raw: Dictionary, kind: String, errors: PackedString
 
 
 static func _validate_scale(raw: Dictionary, normalized: Dictionary, errors: PackedStringArray) -> void:
+	if raw.has("order"):
+		var order_value: Variant = _whole_number(raw.order)
+		if order_value == null or int(order_value) < 0:
+			errors.append("'order' must be a non-negative whole number.")
+		else:
+			normalized["order"] = int(order_value)
 	if not raw.get("category", null) is String or str(raw.get("category", "")).is_empty():
 		errors.append("'category' must be a non-empty string.")
 	else:

@@ -1,4 +1,4 @@
-# GuitarMap implementation progress
+# FretFormula implementation progress
 
 ## Baseline
 - Date/time: 2026-09-06 (Europe/Moscow); resumed 2026-09-07 and 2026-09-08.
@@ -8,7 +8,7 @@
 ## Current stage
 - Stage: stage 8 and the 2026-09-08 visual-reference matching pass are complete as a desktop/Android emulator candidate.
 - Goal: keep the reference-matched candidate reproducible while preserving honest physical-device verification boundaries.
-- Acceptance status: the main screen now follows the supplied GuitarMap reference hierarchy, physical fret spacing, realistic fretboard treatment and settings overlay; both guitar timbres and polyphony remain integrated. Physical-device audio, latency, multitouch and lifecycle remain unverified.
+- Acceptance status: the main screen now follows the supplied FretFormula reference hierarchy, physical fret spacing, realistic fretboard treatment and settings overlay; both guitar timbres and polyphony remain integrated. Physical-device audio, latency, multitouch and lifecycle remain unverified.
 
 ## Completed
 - [x] Fingering duplicate correction: the ascending path now rejects overlapping adjacent-string positions at or below the previous MIDI pitch. The 21 × 12 fingering regression asserts strictly increasing MIDI throughout the ascent. A Lydian contains D♯3 and D♯4 at distinct physical positions, which is intentional octave repetition in a multi-octave run, not a duplicate sounding pitch.
@@ -81,7 +81,7 @@
 - Candidate README and third-party notices were delegated to Luna/low with documentation-only ownership, then reviewed and adjusted during integration.
 - The runtime automation autoload remains in the project for the shared MCP workflow, but its entry point registers only while `EngineDebugger.is_active()`. It is inert in a normal exported run.
 - Stage 8 chord/arpeggio definitions and practice/statistics models were delegated as two non-overlapping Terra/medium workstreams; the parent reviewed their APIs, integrated playback/UI and owns the final regression. RU/EN strings and two mechanical tuning records used Luna/low.
-- Current debug artifact: `build/android/GuitarMap-debug.apk`, 59,432,327 bytes, SHA-256 `3CEE91687AB331F6574771632470ABAB351EFF4E7EA2C14CC2E7642CFBC6736F`; package `org.guitarmap.app` v0.1.0 (code 1), min/target SDK 24/36, arm64-v8a and x86_64.
+- Historical pre-rebrand debug artifact: 59,432,327 bytes, SHA-256 `3CEE91687AB331F6574771632470ABAB351EFF4E7EA2C14CC2E7642CFBC6736F`; version 0.1.0 (code 1), min/target SDK 24/36, arm64-v8a and x86_64.
 
 ## Verification gaps
 - Visible desktop rendering is checked at 1035x381, 1280x480, 1280x720, 1920x720 and 1920x1080 after two reference-comparison iterations. The rebuilt Android APK was installed on `emulator-5554`; the scaled 2400x1080 main screen and Settings overlay were captured after `OnGodotMainLoopStarted`, with no ANR/script/fatal error. The emulator emitted only its known non-fatal shader-cache recompilation warning.

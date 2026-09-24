@@ -30,7 +30,7 @@ func _init() -> void:
 	var result: Dictionary = Loader.load_catalog("res://data/scales.json", "scales")
 	assert(result.ok, str(result.errors))
 	assert(result.records.size() == EXPECTED.size())
-	assert(result.records.map(func(record: Dictionary): return record.category) == ["core", "core", "pentatonic", "pentatonic", "blues", "blues", "major_modes", "major_modes", "minor_modes", "minor_modes", "minor_modes", "minor_scales", "minor_scales", "exotic", "exotic", "exotic", "symmetric", "symmetric", "symmetric", "symmetric", "advanced"])
+	assert(result.records.map(func(record: Dictionary): return record.category) == ["core", "core", "pentatonic", "pentatonic", "blues", "blues", "modes", "modes", "modes", "modes", "modes", "minor_scales", "minor_scales", "exotic", "exotic", "exotic", "symmetric", "symmetric", "symmetric", "chromatic", "advanced"])
 	for record: Dictionary in result.records:
 		assert(record.intervals == EXPECTED[record.id])
 		for field in ["degree_formula", "characteristic_offsets", "characteristic_degrees", "short_description", "character", "typical_chords", "learning_description", "complexity_order"]:

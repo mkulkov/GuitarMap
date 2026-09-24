@@ -1,11 +1,11 @@
-# GuitarMap 0.2 — проверка реализации
+# FretFormula 0.2 — проверка реализации
 
 Дата: 18 сентября 2026. Godot 4.7.2. План: `IMPLEMENTATION_PLAN_2026_09_18.md`.
 
 ## Поставлено
 
-- Самостоятельный Windows x64 EXE: `build/windows/GuitarMap.exe`.
-- Подписанный отладочным ключом Android APK: `build/android/GuitarMap-debug.apk`.
+- Самостоятельный Windows x64 EXE: `build/windows/FretFormula.exe`.
+- Android APK: `build/android/FretFormula-release.apk`.
 - Исходный проект, учебные данные, генератор двух звуковых банков и тесты.
 - APK установлен на подключённый Infinix X663, Android 12.
 

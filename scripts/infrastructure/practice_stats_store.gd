@@ -4,7 +4,7 @@ extends RefCounted
 ## Versioned aggregate practice statistics. Reads never rewrite a damaged file.
 
 const SCHEMA_VERSION := 1
-const DEFAULT_PATH := "user://guitarmap_practice_stats.json"
+const DEFAULT_PATH := "user://fret_formula_practice_stats.json"
 
 var path: String
 

@@ -1,7 +1,7 @@
-class_name GuitarMapTheme
+class_name FretFormulaTheme
 extends RefCounted
 
-## Shared dark UI palette for the landscape-first GuitarMap interface.
+## Shared dark UI palette for the landscape-first FretFormula interface.
 ## The scene owns its layout; this class only supplies reusable Control styling.
 
 # Semantic palette: the fretboard renderer and Control theme share these values.
@@ -151,6 +151,9 @@ static func _apply_variations(theme: Theme) -> void:
 	_set_interaction_boxes(theme, "TabSelected", _box(Color("082032"), ACCENT, 0, 0, 18, 8), _box(Color("0b293c"), ACCENT_HOVER, 0, 0, 18, 8), _box(Color("0d3c50"), ACCENT, 0, 0, 18, 8), _box(Color("0b293c"), FOCUS, 0, 2, 18, 8))
 	theme.set_color("font_color", "TabButton", Color("a6bde0"))
 	for state in ["normal", "hover", "pressed"]:
+		# Keep the inactive tab's layout footprint equal to TabSelected. Otherwise
+		# the selected underline changes the minimum height of the whole tab row.
+		theme.get_stylebox(state, "TabButton").border_width_bottom = 3
 		theme.get_stylebox(state, "TabSelected").border_width_bottom = 3
 	theme.set_color("font_color", "TabSelected", ACCENT)
 	_set_interaction_boxes(theme, "LayerSelected", _box(Color("0d6198"), ACCENT, 8, 2, 14, 7), _box(Color("1474a8"), ACCENT_HOVER, 8, 2, 14, 7), _box(Color("0b526f"), ACCENT, 8, 2, 14, 7), _box(Color("1474a8"), FOCUS, 8, 2, 14, 7))

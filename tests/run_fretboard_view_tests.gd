@@ -4,6 +4,7 @@ const Board := preload("res://scripts/ui/fretboard_view.gd")
 const Learning := preload("res://scripts/application/learning_model.gd")
 var pressed: Array[Dictionary] = []
 var released: Array[int] = []
+var navigation_deltas: Array[int] = []
 
 func _init() -> void:
 	call_deferred("_run")
@@ -15,6 +16,7 @@ func _run() -> void:
 	var model := learning.positions()
 	board.position_pressed.connect(func(owner: int, position: Dictionary): pressed.append({"owner": owner, "position": position}))
 	board.position_released.connect(func(owner: int): released.append(owner))
+	board.fret_navigation_requested.connect(func(delta: int): navigation_deltas.append(delta))
 	for dimensions in [Vector2(640, 300), Vector2(1000, 450), Vector2(1280, 560)]:
 		board.size = dimensions
 		board.configure(model, 6, 24, false, [], Vector2i(3, 9))
@@ -50,6 +52,15 @@ func _run() -> void:
 	assert(board.practice_hidden)
 	board.set_practice_mode(false)
 	assert(not board.practice_hidden)
+	var free_point := (board.position_center_for(0, 3) + board.position_center_for(1, 4)) * 0.5
+	assert(not board._is_marker_at(free_point))
+	var swipe_distance := maxf(100.0, board.geometry.cell_size().x * 1.2)
+	board._begin_navigation(-1, free_point)
+	board._drag_navigation(-1, free_point + Vector2(-swipe_distance, 0))
+	board._drag_navigation(-1, free_point + Vector2(swipe_distance, 0))
+	board._end_pointer(-1)
+	assert(navigation_deltas == [3, -3], "Background drag must page the fretboard in both directions.")
+	assert(board._is_marker_at(board.position_center_for(0, 5)))
 	board.configure(model, 6, 24, true, [], Vector2i(3, 9))
 	await process_frame
 	assert(board.position_center_for(0, 3).x > board.position_center_for(0, 9).x)

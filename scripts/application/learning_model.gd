@@ -32,6 +32,7 @@ var chord_id: String = "major"
 var spelling: String = "sharp"
 var language: String = "ru"
 var fret_count: int = FRET_COUNT
+var shape_fret_offset: int = 0
 
 var errors := PackedStringArray()
 var scales: Array[Dictionary] = []
@@ -274,6 +275,9 @@ func _caged_slots_with_limit(maximum_fret: int) -> Array[Dictionary]:
 			root_fret = candidate
 			break
 	if root_fret < 0:
+		return []
+	root_fret += shape_fret_offset
+	if root_fret + minimum_offset < 0 or root_fret + maximum_offset > maximum_fret:
 		return []
 
 	var result: Array[Dictionary] = []

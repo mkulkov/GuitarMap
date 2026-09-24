@@ -2,7 +2,7 @@ extends SceneTree
 
 const SettingsStore := preload("res://scripts/infrastructure/settings_store.gd")
 
-var settings_path := "user://guitarmap_settings_tests_%d.json" % Time.get_ticks_usec()
+var settings_path := "user://fret_formula_settings_tests_%d.json" % Time.get_ticks_usec()
 
 
 func _init() -> void:

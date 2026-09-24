@@ -1,4 +1,4 @@
-# GuitarMap audio reference and sample-bank provenance
+# FretFormula audio reference and sample-bank provenance
 
 ## Supplied references
 

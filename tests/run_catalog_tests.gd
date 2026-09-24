@@ -3,7 +3,7 @@ extends SceneTree
 const Loader := preload("res://scripts/data/json_catalog_loader.gd")
 const IntervalDefinition := preload("res://scripts/domain/interval.gd")
 
-var temp_directory := "user://guitarmap_catalog_tests_%d" % Time.get_ticks_usec()
+var temp_directory := "user://fret_formula_catalog_tests_%d" % Time.get_ticks_usec()
 
 
 func _init() -> void:

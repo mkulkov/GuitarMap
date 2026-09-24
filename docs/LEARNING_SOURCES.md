@@ -6,4 +6,4 @@
 - JustinGuitar, Chord Shape Explorer: https://www.justinguitar.com/modules/chord-shape-explorer
 - JustinGuitar, Fretboard Framework: https://www.justinguitar.com/guitar-lessons/fretboard-framework-mm-010
 
-Дата проверки: 2026-09-18. Тексты интерфейса написаны для GuitarMap самостоятельно; исходные уроки и изображения не копируются.
+Дата проверки: 2026-09-18. Тексты интерфейса написаны для «Формулы грифа» самостоятельно; исходные уроки и изображения не копируются.

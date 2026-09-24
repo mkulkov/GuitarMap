@@ -26,6 +26,9 @@ func _run() -> void:
 		assert(scene.theory_overlay_hint.is_visible_in_tree())
 	for topic in ["caged", "scales"]:
 		scene._select_topic(topic)
+		# The full-fretboard overview retains the one-octave demonstration.
+		# Complete box playback is covered by run_scale_box_tests/capture_scale_box.
+		if topic == "scales": scene._select_scale_view(2)
 		scene._select_layer("scale")
 		var sequence: Array = scene._material_positions()
 		assert(sequence.size() == 15)

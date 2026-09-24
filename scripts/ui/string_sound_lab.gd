@@ -41,7 +41,7 @@ func _ready() -> void:
 
 func preset_dictionary() -> Dictionary:
 	return {
-		"schema": "guitarmap.string_sound_lab.v1",
+		"schema": "fret_formula.string_sound_lab.v1",
 		"parameters": parameters.duplicate(true),
 	}
 

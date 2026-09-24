@@ -12,8 +12,7 @@ func _run() -> void:
 	scene.settings_store = SettingsStore.new(path)
 	root.add_child(scene)
 	scene.settings.scale_id = "harmonic_minor"
-	for index in scene.explorer.scales.size():
-		if scene.explorer.scales[index].id == "harmonic_minor": scene.scale_selector.select(index)
+	scene._populate_scale_selector()
 	scene._select_shape("C")
 	scene._select_layer("scale")
 	for dimensions in [Vector2i(1672, 900), Vector2i(1280, 720)]:

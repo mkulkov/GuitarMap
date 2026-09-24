@@ -1,7 +1,7 @@
 {
   "version": 1,
   "strings": {
-    "app.title": {"ru": "Гитарная карта", "en": "Guitar Map"},
+    "app.title": {"ru": "Формула грифа", "en": "Формула грифа"},
     "app.tagline": {"ru": "Изучайте ноты, интервалы и формы грифа", "en": "Explore notes, intervals, and fretboard shapes"},
     "selector.tonic": {"ru": "Тоника", "en": "Tonic"},
     "selector.scale": {"ru": "Гамма", "en": "Scale"},
