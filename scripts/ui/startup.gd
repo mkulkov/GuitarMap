@@ -8,6 +8,7 @@ const PUBLIC_APP_NAME := "Формула грифа"
 var _elapsed := 0.0
 var _request_started := false
 var _transitioning := false
+var _loaded_scene: PackedScene
 var progress_bar: ProgressBar
 var status_label: Label
 var brand_icon: TextureRect
@@ -17,7 +18,7 @@ func _ready() -> void:
 	DisplayServer.window_set_title(PUBLIC_APP_NAME)
 	theme = AppTheme.create()
 	_build_ui()
-	ResourceLoader.load_threaded_request(MAIN_SCENE, "PackedScene")
+	_loaded_scene = load(MAIN_SCENE) as PackedScene
 	_request_started = true
 
 
@@ -25,13 +26,10 @@ func _process(delta: float) -> void:
 	_elapsed += delta
 	if not _request_started or _transitioning:
 		return
-	var progress: Array = []
-	var status := ResourceLoader.load_threaded_get_status(MAIN_SCENE, progress)
-	var fraction := float(progress[0]) if not progress.is_empty() else 0.0
-	progress_bar.value = clampf(fraction * 100.0, 4.0, 100.0)
-	if status == ResourceLoader.THREAD_LOAD_LOADED and _elapsed >= MINIMUM_DISPLAY_SECONDS:
+	progress_bar.value = 100.0 if _loaded_scene != null else 0.0
+	if _loaded_scene != null and _elapsed >= MINIMUM_DISPLAY_SECONDS:
 		_open_workspace()
-	elif status == ResourceLoader.THREAD_LOAD_FAILED:
+	elif _loaded_scene == null:
 		status_label.text = "Не удалось подготовить рабочее пространство"
 		progress_bar.value = 0.0
 
@@ -97,6 +95,6 @@ func _open_workspace() -> void:
 	_transitioning = true
 	progress_bar.value = 100.0
 	status_label.text = "Готово"
-	var scene := ResourceLoader.load_threaded_get(MAIN_SCENE) as PackedScene
+	var scene := _loaded_scene
 	if scene != null:
 		get_tree().change_scene_to_packed(scene)

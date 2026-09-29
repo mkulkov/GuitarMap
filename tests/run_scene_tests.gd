@@ -15,6 +15,16 @@ func _run() -> void:
 	scene.practice_stats_store = PracticeStatsStore.new(stats_path)
 	scene.monetization_state_path = monetization_path
 	root.add_child(scene)
+	assert(not scene.metronome.running)
+	assert(scene.metronome_button.get_parent() == scene.lower_row)
+	scene.metronome_button.pressed.emit()
+	assert(scene.metronome.running)
+	scene.metronome_button.pressed.emit()
+	assert(not scene.metronome.running)
+	scene.metronome_settings_button.pressed.emit()
+	assert(scene.metronome_panel.visible and scene.metronome_scrim.visible)
+	scene._toggle_metronome_settings()
+	assert(not scene.metronome_panel.visible)
 	var dimensions_to_check := [Vector2i(640, 360), Vector2i(720, 1280), Vector2i(1035, 381), Vector2i(1280, 720), Vector2i(1600, 720), Vector2i(1672, 941), Vector2i(2400, 1080)]
 	if OS.get_cmdline_user_args().has("--functional-only"):
 		dimensions_to_check = [Vector2i(1672, 941)]

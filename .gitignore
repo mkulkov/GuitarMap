@@ -1,5 +1,40 @@
 .godot/
-build/
-reports/
+/build/
+/reports/
 *.tmp
 
+# Local caches, generated output and signing material
+*.translation
+.playwright-mcp/
+/artifacts/
+/builds/
+/exports/
+/verification/
+/screenshots/
+/captures/
+/recordings/
+/work/
+/tmp/
+android/build/
+*.apk
+*.aab
+*.apks
+*.ipa
+*.pck
+*.exe
+*.keystore
+*.jks
+*.p12
+*.pem
+*_PEPK.zip
+.env
+.env.*
+config/private/
+
+# Local agent instructions and promotional working files
+/AGENTS.md
+/.agents/
+/.agent/
+/prompts/
+/promotion/
+*.zip

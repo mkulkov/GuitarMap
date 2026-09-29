@@ -28,6 +28,10 @@ static func defaults() -> Dictionary:
 		"guitar_type": "acoustic",
 		"master_volume": 1.0,
 		"tempo_bpm": 120,
+		"metronome_beats": 4,
+		"metronome_subdivision": 1,
+		"metronome_accent": true,
+		"metronome_volume": 0.5,
 		"language": "ru",
 		"display_mode": 0,
 	}
@@ -105,6 +109,20 @@ static func _validate(raw: Variant) -> Dictionary:
 		_normalize_integer(raw, normalized, errors, "tempo_bpm", 30, 240)
 	else:
 		normalized["tempo_bpm"] = 120
+	var metronome_defaults := defaults()
+	for key in ["metronome_beats", "metronome_subdivision", "metronome_accent", "metronome_volume"]:
+		if not raw.has(key):
+			normalized[key] = metronome_defaults[key]
+	if raw.has("metronome_beats"):
+		_normalize_integer(raw, normalized, errors, "metronome_beats", 1, 12)
+	if raw.has("metronome_subdivision"):
+		_normalize_integer(raw, normalized, errors, "metronome_subdivision", 1, 4)
+		if normalized.has("metronome_subdivision") and int(normalized.metronome_subdivision) not in [1, 2, 3, 4]:
+			errors.append("metronome_subdivision is unsupported.")
+	if raw.has("metronome_accent"):
+		_normalize_boolean(raw, normalized, errors, "metronome_accent")
+	if raw.has("metronome_volume"):
+		_normalize_number(raw, normalized, errors, "metronome_volume", 0.0, 1.0)
 	_normalize_enum(raw, normalized, errors, "language", ["ru", "en"])
 	_normalize_integer(raw, normalized, errors, "display_mode", 0, 2)
 	_normalize_custom_tuning(raw, normalized, errors)

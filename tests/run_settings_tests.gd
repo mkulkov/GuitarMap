@@ -16,6 +16,7 @@ func _init() -> void:
 	_test_guitar_type_is_compatible_and_validated()
 	_test_schema_mismatch_uses_defaults()
 	_test_learning_state_round_trip_and_legacy()
+	_test_metronome_settings()
 	_cleanup()
 	print("Settings tests passed: fallback, validation, atomic save, custom tuning, and schema version.")
 	quit()
@@ -44,6 +45,21 @@ func _test_round_trip_normalizes_integral_floats() -> void:
 	assert(loaded.tonic == 0)
 	assert(loaded.fret_count is int)
 	assert(loaded.display_mode == 1)
+
+
+func _test_metronome_settings() -> void:
+	var store := SettingsStore.new(settings_path)
+	var state := SettingsStore.defaults()
+	state.metronome_beats = 7
+	state.metronome_subdivision = 3
+	state.metronome_accent = false
+	state.metronome_volume = 0.25
+	assert(store.save_settings(state).ok)
+	var loaded := store.load_settings()
+	assert(loaded.metronome_beats == 7 and loaded.metronome_subdivision == 3)
+	assert(not loaded.metronome_accent and loaded.metronome_volume == 0.25)
+	state.metronome_beats = 13
+	assert(not store.save_settings(state).ok)
 
 
 func _test_corrupt_file_uses_defaults_without_rewrite() -> void:

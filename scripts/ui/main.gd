@@ -6,6 +6,7 @@ const MiniView = preload("res://scripts/ui/mini_neck_view.gd")
 const NoteNames = preload("res://scripts/domain/note_spelling.gd")
 const StudyPanel = preload("res://scripts/ui/study_tools.gd")
 const StudyPlayer = preload("res://scripts/application/study_playback.gd")
+const MetronomeScript = preload("res://scripts/audio/metronome.gd")
 const ScaleBox = preload("res://scripts/application/scale_box.gd")
 
 var scale_view_mode := 0 # 0: position, 1: three notes/string, 2: full fretboard
@@ -27,6 +28,17 @@ var language := "ru"
 var explorer := ScaleExplorer.new()
 var learning: LearningModel
 var audio_engine: GuitarAudioEngine
+var metronome: Node
+var metronome_button: Button
+var metronome_settings_button: Button
+var metronome_panel: PanelContainer
+var metronome_scrim: ColorRect
+var metronome_tempo_label: Label
+var metronome_beat_label: Label
+var metronome_beat_selector: OptionButton
+var metronome_subdivision_selector: OptionButton
+var metronome_accent_toggle: CheckButton
+var metronome_volume_slider: HSlider
 var touch_coordinator: TouchVoiceCoordinator
 var sequence_player: NoteSequencePlayer
 var practice_session: PracticeSession
@@ -178,6 +190,13 @@ func _apply_settings_to_models() -> void:
 
 
 func _create_audio() -> void:
+	metronome = MetronomeScript.new()
+	metronome.name = "Metronome"
+	add_child(metronome)
+	_sync_metronome()
+	metronome.beat.connect(func(number: int, _accented: bool):
+		metronome_button.text = "■%d" % number if size.x < 800.0 or size.y < 470.0 else "%s %d" % [_t("■ Метроном", "■ Metronome"), number]
+	)
 	audio_engine = GuitarAudioEngine.new()
 	audio_engine.name = "AudioEngine"
 	add_child(audio_engine)
@@ -295,6 +314,17 @@ func _build_ui() -> void:
 	theory_compact_button.visible = false
 	theory_compact_button.pressed.connect(_toggle_theory_sheet)
 	lower_row.add_child(theory_compact_button)
+	metronome_button = _button("", "PracticeButton", 48)
+	metronome_button.name = "MetronomeButton"
+	metronome_button.custom_minimum_size.x = 150
+	metronome_button.pressed.connect(_toggle_metronome)
+	lower_row.add_child(metronome_button)
+	metronome_settings_button = _button("⚙", "IconButton", 48)
+	metronome_settings_button.name = "MetronomeSettingsButton"
+	metronome_settings_button.tooltip_text = _t("Настройки метронома", "Metronome settings")
+	metronome_settings_button.pressed.connect(_toggle_metronome_settings)
+	lower_row.add_child(metronome_settings_button)
+	_update_metronome_button()
 
 	mini_row = HBoxContainer.new()
 	mini_row.name = "MiniNeckAndPractice"
@@ -329,6 +359,7 @@ func _build_ui() -> void:
 	practice_box.add_child(close_practice)
 
 	_build_settings_overlay()
+	_build_metronome_overlay()
 	_build_theory_sheet()
 	_build_about_overlay()
 	if _donations_enabled():
@@ -1421,6 +1452,127 @@ func _toggle_settings() -> void:
 		settings_panel.move_to_front()
 
 
+func _build_metronome_overlay() -> void:
+	metronome_scrim = ColorRect.new()
+	metronome_scrim.name = "MetronomeScrim"
+	metronome_scrim.color = Color(0.0, 0.025, 0.05, 0.73)
+	metronome_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	metronome_scrim.visible = false
+	add_child(metronome_scrim)
+	metronome_scrim.gui_input.connect(func(event: InputEvent):
+		if event is InputEventMouseButton and event.pressed:
+			_toggle_metronome_settings()
+	)
+	metronome_panel = _panel("SettingsPanel")
+	metronome_panel.name = "MetronomePanel"
+	metronome_panel.visible = false
+	add_child(metronome_panel)
+	var margin := MarginContainer.new()
+	_set_margins(margin, 22, 18, 22, 18)
+	metronome_panel.add_child(margin)
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	margin.add_child(scroll)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 10)
+	scroll.add_child(column)
+	var title := _settings_label(column, _t("Метроном", "Metronome"))
+	title.name = "MetronomeTitle"
+	metronome_tempo_label = _settings_label(column, "")
+	var tempo := HSlider.new()
+	tempo.name = "MetronomeTempo"
+	tempo.min_value = 30
+	tempo.max_value = 240
+	tempo.step = 1
+	tempo.value = int(settings.tempo_bpm)
+	tempo.custom_minimum_size.y = 44
+	column.add_child(tempo)
+	tempo.value_changed.connect(func(value: float):
+		settings.tempo_bpm = int(value)
+		metronome_tempo_label.text = "%s: %d BPM" % [_t("Темп", "Tempo"), int(value)]
+		_sync_metronome()
+		_save_settings()
+	)
+	metronome_beat_label = _settings_label(column, _t("Долей в такте", "Beats per bar"))
+	metronome_beat_selector = _settings_option(column)
+	for count in range(1, 13):
+		metronome_beat_selector.add_item("%d/4" % count, count)
+	metronome_beat_selector.select(int(settings.metronome_beats) - 1)
+	metronome_beat_selector.item_selected.connect(func(index: int):
+		settings.metronome_beats = index + 1
+		_sync_metronome()
+		_save_settings()
+	)
+	_settings_label(column, _t("Подразделение доли", "Beat subdivision"))
+	metronome_subdivision_selector = _settings_option(column)
+	for label in [_t("Четверти", "Quarter notes"), _t("Восьмые", "Eighth notes"), _t("Триоли", "Triplets"), _t("Шестнадцатые", "Sixteenth notes")]:
+		metronome_subdivision_selector.add_item(label)
+	metronome_subdivision_selector.select(int(settings.metronome_subdivision) - 1)
+	metronome_subdivision_selector.item_selected.connect(func(index: int):
+		settings.metronome_subdivision = index + 1
+		_sync_metronome()
+		_save_settings()
+	)
+	metronome_accent_toggle = CheckButton.new()
+	metronome_accent_toggle.text = _t("Акцент первой доли", "Accent first beat")
+	metronome_accent_toggle.button_pressed = bool(settings.metronome_accent)
+	column.add_child(metronome_accent_toggle)
+	metronome_accent_toggle.toggled.connect(func(value: bool):
+		settings.metronome_accent = value
+		_sync_metronome()
+		_save_settings()
+	)
+	_settings_label(column, _t("Громкость клика", "Click volume"))
+	metronome_volume_slider = HSlider.new()
+	metronome_volume_slider.min_value = 0
+	metronome_volume_slider.max_value = 1
+	metronome_volume_slider.step = 0.05
+	metronome_volume_slider.value = float(settings.metronome_volume)
+	metronome_volume_slider.custom_minimum_size.y = 44
+	column.add_child(metronome_volume_slider)
+	metronome_volume_slider.value_changed.connect(func(value: float):
+		settings.metronome_volume = value
+		_sync_metronome()
+		_save_settings()
+	)
+	var close := _button(_t("Готово", "Done"), "ScalePlayButton", 48)
+	close.pressed.connect(_toggle_metronome_settings)
+	column.add_child(close)
+	metronome_tempo_label.text = "%s: %d BPM" % [_t("Темп", "Tempo"), int(settings.tempo_bpm)]
+
+
+func _toggle_metronome() -> void:
+	if metronome.running:
+		metronome.stop()
+	else:
+		metronome.start()
+	_update_metronome_button()
+
+
+func _update_metronome_button() -> void:
+	if metronome_button == null:
+		return
+	var running_now: bool = metronome != null and bool(metronome.running)
+	metronome_button.text = ("■" if running_now else "▶") if size.x < 800.0 or size.y < 470.0 else (_t("■ Метроном", "■ Metronome") if running_now else _t("▶ Метроном", "▶ Metronome"))
+	metronome_button.tooltip_text = _t("Остановить метроном", "Stop metronome") if metronome != null and metronome.running else _t("Запустить метроном", "Start metronome")
+
+
+func _sync_metronome() -> void:
+	if metronome != null:
+		metronome.configure(int(settings.tempo_bpm), int(settings.metronome_beats), int(settings.metronome_subdivision), bool(settings.metronome_accent), float(settings.metronome_volume))
+
+
+func _toggle_metronome_settings() -> void:
+	var visible_next := not metronome_panel.visible
+	metronome_panel.visible = visible_next
+	metronome_scrim.visible = visible_next
+	if visible_next:
+		metronome_panel.size = Vector2(minf(420.0, size.x - 24.0), minf(610.0, size.y - 24.0))
+		metronome_panel.position = (size - metronome_panel.size) * 0.5
+		metronome_scrim.move_to_front()
+		metronome_panel.move_to_front()
+
+
 func _toggle_about() -> void:
 	if about_panel.visible:
 		_hide_about()
@@ -1580,6 +1732,7 @@ func _apply_responsive_layout() -> void:
 	var viewport_size := size
 	var compact := viewport_size.y < 820.0 or viewport_size.x < 1800.0
 	var very_compact := viewport_size.y < 470.0 or viewport_size.x < 800.0
+	content_column.add_theme_constant_override("separation", 0 if very_compact else 10)
 	header.custom_minimum_size.y = 50 if very_compact else (68 if compact else 86)
 	tabs.custom_minimum_size.y = 38 if very_compact else (50 if compact else 64)
 	var safe := _safe_margins(8 if very_compact else (14 if compact else 24))
@@ -1598,6 +1751,20 @@ func _apply_responsive_layout() -> void:
 	legend_row.visible = not compact
 	theory_compact_button.visible = compact
 	lower_row.custom_minimum_size.y = 46 if very_compact else (58 if compact else 68)
+	metronome_button.custom_minimum_size.y = 40 if very_compact else 48
+	metronome_settings_button.custom_minimum_size.y = 40 if very_compact else 48
+	lower_row.add_theme_constant_override("separation", 0 if very_compact else 12)
+	lower_row.get_node("LayerSelector").custom_minimum_size.x = 0 if compact else 720
+	metronome_button.custom_minimum_size.x = 40 if very_compact else (132 if compact else 150)
+	metronome_button.text = ("■" if metronome != null and metronome.running else "▶") if very_compact else (_t("■ Метроном", "■ Metronome") if metronome != null and metronome.running else _t("▶ Метроном", "▶ Metronome"))
+	metronome_settings_button.custom_minimum_size.x = 40 if very_compact else 44
+	if very_compact:
+		layer_buttons.roots.text = "◆"
+		layer_buttons.chord.text = "△"
+		layer_buttons.scale.text = "♬"
+	else:
+		for layer_value in LAYERS:
+			layer_buttons[layer_value].text = _layer_text(layer_value)
 	var header_safe := _safe_margins(6 if very_compact else (14 if compact else 28))
 	# Align the logo with the outer edge of the open-string circles, not with
 	# the fretboard rectangle that starts to their right.
@@ -1660,6 +1827,9 @@ func _apply_responsive_layout() -> void:
 	box_selector.add_theme_font_size_override("font_size", 14 if very_compact else (16 if compact else 19))
 	board.custom_minimum_size.y = 160 if very_compact else 260
 	_layout_settings_panel(viewport_size)
+	if metronome_panel.visible:
+		metronome_panel.size = Vector2(minf(420.0, viewport_size.x - 24.0), minf(610.0, viewport_size.y - 24.0))
+		metronome_panel.position = (viewport_size - metronome_panel.size) * 0.5
 	_layout_theory_sheet(viewport_size)
 	_layout_monetization_panels(viewport_size)
 	if study_tools != null: study_tools.layout_panel(viewport_size)
@@ -1671,6 +1841,9 @@ func _layout_theory_sheet(viewport_size: Vector2) -> void:
 
 
 func _stop_all_audio(reason: String) -> void:
+	if metronome != null:
+		metronome.stop()
+		_update_metronome_button()
 	if study_playback != null: study_playback.stop()
 	if sequence_player != null: sequence_player.stop()
 	if touch_coordinator != null: touch_coordinator.cancel_all(reason)
