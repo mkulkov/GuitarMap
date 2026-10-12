@@ -34,7 +34,7 @@ global Godot paths, skills, MCP package, or verification requirements.
 
 ## Models and delegation
 
-- Follow the global default: `gpt-6-sol` with medium reasoning for routine
+- Follow the global default: `gpt-6.1-sol` with medium reasoning for routine
   implementation, tests, review, and bounded debugging.
 - Use Luna/low for mechanical or short, well-defined edits, and Sol/low for
   read-heavy or bounded work. Recommend Sol/high for architecture,

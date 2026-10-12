@@ -4,7 +4,7 @@
 
 `docs/reference/approved-landscape.png` — AI-generated concept approved by the user on 2026-09-18. It is a design reference, not a runtime background. The earlier `fret_formula_ui_reference.png` is historical. Both are excluded from application exports.
 
-`assets/brand_mark.svg` is an original vector implementation of the approved cyan pick/guitar-neck brand motif. Runtime fretboard, markers and shape overlays are drawn by the application from musical data.
+Runtime fretboard, markers and shape overlays are drawn by the application from musical data.
 
 `assets/formula_fret_logo_compact.png` and `assets/formula_fret_icon.png` are transparent runtime derivatives of the user-supplied approved «Формула грифа» artwork, prepared for responsive header and loading-screen use.
 

@@ -31,8 +31,10 @@ func _run() -> void:
 		var shell := FileAccess.get_file_as_string(shell_path)
 		assert(shell.contains("<title>Формула грифа</title>"))
 		assert(shell.contains("window.FretFormulaPlatform"))
-	var prepared_scene := ResourceLoader.load_threaded_get("res://scenes/app/main.tscn") as PackedScene
+	var prepared_scene: PackedScene = scene._loaded_scene
 	assert(prepared_scene != null)
+	assert(prepared_scene.resource_path == "res://scenes/app/main.tscn")
+	assert(prepared_scene.can_instantiate())
 	scene.queue_free()
 	await process_frame
 	print("Startup tests passed: branded loading screen initializes with progress and a readable landscape layout.")
